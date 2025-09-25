@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Mi Cartera</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body class="flex flex-col min-h-screen">
+
+  <header id="header-container" class="bg-white shadow-md sticky top-0 z-50"></header>
+
+  <main class="flex-1 p-4 sm:p-6 lg:p-8">
+    <div class="max-w-7xl mx-auto space-y-8">
+      
+      <h1 class="text-3xl font-bold text-gray-800">Resumen General</h1>
+      
+      <div id="summary-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        </div>
+
+      <div>
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Mis Cuentas</h2>
+        <div id="accounts-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Últimos Movimientos</h2>
+        <div id="transactions-list" class="overflow-x-auto">
+            </div>
+      </div>
+
+    </div>
+  </main>
+  
+  <script type="module" src="dashboard.js"></script>
+</body>
+</html>
