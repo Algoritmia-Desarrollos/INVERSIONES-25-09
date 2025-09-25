@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Cartera</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <h1>Dashboard de Cartera</h1>
+            <div class="status-indicator">
+                <div class="live-dot"></div>
+                <span id="update-status">Cargando...</span>
+            </div>
+        </header>
+
+        <div class="card" id="portfolioCard">
+            <h3>Tu cartera</h3>
+            <table id="portfolioTable">
+                <thead>
+                    <tr>
+                        <th>Activo</th>
+                        <th>Invertido</th>
+                        <th>Compra (USD)</th>
+                        <th>Precio ahora (USD)</th>
+                        <th>Valor Actual</th>
+                        <th>P/L Activo (USD)</th>
+                        <th>Cambio Hoy</th>
+                        <th>Progreso a Límites</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+
+             <div class="totals-grid">
+                <div>Total invertido: <strong id="totalInvested">-</strong></div>
+                <div>Valor actual: <strong id="totalValue">-</strong></div>
+                <div>P/L total: <strong id="totalPL">-</strong> (<span id="totalPLPct">-</span>%)</div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
