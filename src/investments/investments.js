@@ -4,7 +4,8 @@ import { renderHeader } from '../common/header.js';
 import { supabase } from '../common/supabase.js';
 
 // --- LÓGICA PRINCIPAL ---
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await protectPage(); // <-- ¡LÍNEA DE SEGURIDAD!
     // --- CORRECCIÓN: Movemos la selección de elementos del DOM aquí dentro ---
     const headerContainer = document.getElementById('header-container');
     const decisionTableContainer = document.getElementById('decision-table-container');

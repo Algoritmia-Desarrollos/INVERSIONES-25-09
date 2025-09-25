@@ -10,7 +10,8 @@ const accountSelect = document.getElementById('account');
 const transactionsListContainer = document.getElementById('transactions-list-container');
 
 // --- LÓGICA PRINCIPAL ---
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await protectPage(); // <-- ¡LÍNEA DE SEGURIDAD!
     headerContainer.innerHTML = renderHeader();
     
     // Cargar datos en paralelo

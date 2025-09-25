@@ -10,7 +10,8 @@ const accountsList = document.getElementById('accounts-list');
 const transactionsList = document.getElementById('transactions-list');
 
 // --- LÓGICA PRINCIPAL ---
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await protectPage(); // <-- ¡LÍNEA DE SEGURIDAD!
     headerContainer.innerHTML = renderHeader();
     loadDashboardData();
 });

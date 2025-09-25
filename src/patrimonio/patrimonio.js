@@ -14,7 +14,8 @@ const liabilitiesTotalEl = document.getElementById('liabilities-total');
 const investmentDetailsContainer = document.getElementById('investment-details-container');
 
 // --- LÓGICA PRINCIPAL ---
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await protectPage(); // <-- ¡LÍNEA DE SEGURIDAD!
     headerContainer.innerHTML = renderHeader();
     loadPatrimonioData();
 });
