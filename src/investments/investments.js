@@ -1,4 +1,5 @@
 // src/investments/investments.js
+import { protectPage } from '../common/auth.js'; // <-- ¡LÍNEA AÑADIDA!
 
 import { renderHeader } from '../common/header.js';
 import { supabase } from '../common/supabase.js';

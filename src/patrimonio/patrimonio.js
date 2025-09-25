@@ -1,5 +1,5 @@
 // src/patrimonio/patrimonio.js
-
+import { protectPage } from '../common/auth.js';
 import { renderHeader } from '../common/header.js';
 import { supabase } from '../common/supabase.js';
 
@@ -15,7 +15,7 @@ const investmentDetailsContainer = document.getElementById('investment-details-c
 
 // --- LÓGICA PRINCIPAL ---
 document.addEventListener('DOMContentLoaded', async () => {
-    await protectPage(); // <-- ¡LÍNEA DE SEGURIDAD!
+    await protectPage();
     headerContainer.innerHTML = renderHeader();
     loadPatrimonioData();
 });
@@ -33,26 +33,20 @@ async function loadPatrimonioData() {
         const accounts = accountsRes.data;
         const portfolioItems = portfolioRes.data;
 
-        // --- Cálculos ---
-        const { totalValue: totalPortfolioValue, totalPnl: totalPortfolioPnl } = calculatePortfolioSummary(portfolioItems);
+        const { totalValue: totalPortfolioValue } = calculatePortfolioSummary(portfolioItems);
 
         let totalAssets = 0;
         let totalLiabilities = 0;
 
         assetsListEl.innerHTML = '';
-        liabilitiesListEl.innerHTML = '';
+        liabilitiesListEl.innerHTML = '<p class="text-gray-500">No tenés pasivos registrados.</p>';
 
         accounts.forEach(account => {
-            let balance = 0;
-            if (account.type === 'INVERSION') {
-                balance = totalPortfolioValue;
-            } else {
-                balance = account.initial_balance; // Simplificado: el balance real vendría de sumar transacciones
-            }
-
+            let balance = account.type === 'INVERSION' ? totalPortfolioValue : account.initial_balance;
+            
             if (account.type === 'DEUDA') {
                 totalLiabilities += balance;
-                liabilitiesListEl.innerHTML += renderAccountItem(account, balance);
+                liabilitiesListEl.innerHTML = renderAccountItem(account, balance); // Sobrescribe si encuentra una deuda
             } else {
                 totalAssets += balance;
                 assetsListEl.innerHTML += renderAccountItem(account, balance);
@@ -61,8 +55,8 @@ async function loadPatrimonioData() {
         
         const netWorth = totalAssets - totalLiabilities;
         
-        // --- Renderizado ---
         netWorthTotalEl.textContent = formatCurrency(netWorth);
+        // CORRECCIÓN: Usamos formatCurrency en lugar de formatCircle
         netWorthSubtitleEl.textContent = `Activos: ${formatCurrency(totalAssets)} - Pasivos: ${formatCurrency(totalLiabilities)}`;
         assetsTotalEl.textContent = formatCurrency(totalAssets);
         liabilitiesTotalEl.textContent = formatCurrency(totalLiabilities);
@@ -75,6 +69,7 @@ async function loadPatrimonioData() {
     }
 }
 
+// ... (el resto de las funciones render, calculate y format son las mismas)
 function renderAccountItem(account, balance) {
     return `
         <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm border">
@@ -88,50 +83,28 @@ function renderAccountItem(account, balance) {
 }
 
 function renderInvestmentDetails(portfolioItems) {
-    if (portfolioItems.length === 0) {
-        investmentDetailsContainer.innerHTML = `<p>No hay inversiones.</p>`;
+    if (!portfolioItems || portfolioItems.length === 0) {
+        investmentDetailsContainer.innerHTML = `<p>No hay inversiones registradas.</p>`;
         return;
     }
-    
     const tableRows = portfolioItems.map(asset => {
         const currentPrice = asset.currentPrice || asset.purchasePrice;
         const pnl = (currentPrice - asset.purchasePrice) * asset.quantity;
         const pnlClass = pnl >= 0 ? 'text-green-600' : 'text-red-600';
-        return `
-            <tr class="border-b">
-                <td class="py-3 px-2 font-medium">${asset.symbol}</td>
-                <td class="py-3 px-2 text-gray-500">${formatCurrency(asset.purchasePrice)}</td>
-                <td class="py-3 px-2 font-semibold">${formatCurrency(currentPrice)}</td>
-                <td class="py-3 px-2 font-bold ${pnlClass}">${formatCurrency(pnl)}</td>
-            </tr>
-        `;
+        return `<tr class="border-b"><td class="py-3 px-2 font-medium">${asset.symbol}</td><td class="py-3 px-2 text-gray-500">${formatCurrency(asset.purchasePrice)}</td><td class="py-3 px-2 font-semibold">${formatCurrency(currentPrice)}</td><td class="py-3 px-2 font-bold ${pnlClass}">${formatCurrency(pnl)}</td></tr>`;
     }).join('');
-
-    investmentDetailsContainer.innerHTML = `
-        <table class="min-w-full text-sm">
-            <thead class="text-left text-gray-500">
-                <tr>
-                    <th class="py-2 px-2 font-semibold">Activo</th>
-                    <th class="py-2 px-2 font-semibold">Precio Compra</th>
-                    <th class="py-2 px-2 font-semibold">Precio Actual</th>
-                    <th class="py-2 px-2 font-semibold">Resultado</th>
-                </tr>
-            </thead>
-            <tbody>${tableRows}</tbody>
-        </table>
-    `;
+    investmentDetailsContainer.innerHTML = `<table class="min-w-full text-sm"><thead class="text-left text-gray-500"><tr><th class="py-2 px-2 font-semibold">Activo</th><th class="py-2 px-2 font-semibold">Precio Compra</th><th class="py-2 px-2 font-semibold">Precio Actual</th><th class="py-2 px-2 font-semibold">Resultado</th></tr></thead><tbody>${tableRows}</tbody></table>`;
 }
 
 function calculatePortfolioSummary(portfolioItems) {
-    let totalValue = 0;
-    let totalPnl = 0;
-    portfolioItems.forEach(asset => {
-        const currentPrice = asset.currentPrice || asset.purchasePrice;
-        totalValue += asset.quantity * currentPrice;
-        totalPnl += (currentPrice - asset.purchasePrice) * asset.quantity;
-    });
+    let totalValue = 0, totalPnl = 0;
+    if (portfolioItems) {
+        portfolioItems.forEach(asset => {
+            const currentPrice = asset.currentPrice || asset.purchasePrice;
+            totalValue += (asset.quantity || 0) * currentPrice;
+            totalPnl += (currentPrice - asset.purchasePrice) * (asset.quantity || 0);
+        });
+    }
     return { totalValue, totalPnl };
 }
-
-// --- FUNCIONES UTILITARIAS ---
 const formatCurrency = (value, currency = 'ARS') => new Intl.NumberFormat('es-AR', { style: 'currency', currency }).format(value);
