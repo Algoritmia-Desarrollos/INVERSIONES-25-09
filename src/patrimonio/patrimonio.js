@@ -3,27 +3,25 @@ import { protectPage } from '../common/auth.js';
 import { renderHeader } from '../common/header.js';
 import { supabase } from '../common/supabase.js';
 
-// --- ELEMENTOS DEL DOM ---
-const headerContainer = document.getElementById('header-container');
-const netWorthTotalEl = document.getElementById('net-worth-total');
-const netWorthSubtitleEl = document.getElementById('net-worth-subtitle');
-const assetsListEl = document.getElementById('assets-list');
-const assetsTotalEl = document.getElementById('assets-total');
-const liabilitiesListEl = document.getElementById('liabilities-list');
-const liabilitiesTotalEl = document.getElementById('liabilities-total');
-const investmentDetailsContainer = document.getElementById('investment-details-container');
-
-// --- LÓGICA PRINCIPAL ---
 document.addEventListener('DOMContentLoaded', async () => {
     await protectPage();
+    const headerContainer = document.getElementById('header-container');
     headerContainer.innerHTML = renderHeader();
     loadPatrimonioData();
 });
 
 async function loadPatrimonioData() {
+    const netWorthTotalEl = document.getElementById('net-worth-total');
+    const netWorthSubtitleEl = document.getElementById('net-worth-subtitle');
+    const assetsListEl = document.getElementById('assets-list');
+    const assetsTotalEl = document.getElementById('assets-total');
+    const liabilitiesListEl = document.getElementById('liabilities-list');
+    const liabilitiesTotalEl = document.getElementById('liabilities-total');
+
     try {
+        // --- CAMBIO CLAVE: Usamos la función que calcula los saldos reales ---
         const [accountsRes, portfolioRes] = await Promise.all([
-            supabase.from('accounts_view').select('*'),
+            supabase.rpc('get_accounts_with_balance'),
             supabase.from('portfolio_view').select('*')
         ]);
 
@@ -42,21 +40,21 @@ async function loadPatrimonioData() {
         liabilitiesListEl.innerHTML = '<p class="text-gray-500">No tenés pasivos registrados.</p>';
 
         accounts.forEach(account => {
-            let balance = account.type === 'INVERSION' ? totalPortfolioValue : account.initial_balance;
+            // 'balance' ahora es el saldo REAL (inicial + movimientos)
+            let currentBalance = account.type === 'INVERSION' ? totalPortfolioValue : account.balance;
             
             if (account.type === 'DEUDA') {
-                totalLiabilities += balance;
-                liabilitiesListEl.innerHTML = renderAccountItem(account, balance); // Sobrescribe si encuentra una deuda
+                totalLiabilities += currentBalance;
+                liabilitiesListEl.innerHTML = renderAccountItem(account); 
             } else {
-                totalAssets += balance;
-                assetsListEl.innerHTML += renderAccountItem(account, balance);
+                totalAssets += currentBalance;
+                assetsListEl.innerHTML += renderAccountItem(account);
             }
         });
         
         const netWorth = totalAssets - totalLiabilities;
         
         netWorthTotalEl.textContent = formatCurrency(netWorth);
-        // CORRECCIÓN: Usamos formatCurrency en lugar de formatCircle
         netWorthSubtitleEl.textContent = `Activos: ${formatCurrency(totalAssets)} - Pasivos: ${formatCurrency(totalLiabilities)}`;
         assetsTotalEl.textContent = formatCurrency(totalAssets);
         liabilitiesTotalEl.textContent = formatCurrency(totalLiabilities);
@@ -69,20 +67,23 @@ async function loadPatrimonioData() {
     }
 }
 
-// ... (el resto de las funciones render, calculate y format son las mismas)
-function renderAccountItem(account, balance) {
+function renderAccountItem(account) {
+    // La cuenta de inversión no muestra saldo aquí, se desglosa abajo
+    const balanceToShow = account.type !== 'INVERSION' ? account.balance : null;
     return `
         <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm border">
             <div>
                 <p class="font-bold text-gray-800">${account.name}</p>
                 <p class="text-sm text-gray-500">${account.type}</p>
             </div>
-            <p class="text-lg font-semibold">${formatCurrency(balance, account.currency === 'PORTFOLIO' ? 'ARS' : account.currency)}</p>
+            ${balanceToShow !== null ? `<p class="text-lg font-semibold">${formatCurrency(balanceToShow, account.currency)}</p>` : ''}
         </div>
     `;
 }
 
+// (El resto de las funciones de este archivo permanecen igual)
 function renderInvestmentDetails(portfolioItems) {
+    const investmentDetailsContainer = document.getElementById('investment-details-container');
     if (!portfolioItems || portfolioItems.length === 0) {
         investmentDetailsContainer.innerHTML = `<p>No hay inversiones registradas.</p>`;
         return;
@@ -91,20 +92,18 @@ function renderInvestmentDetails(portfolioItems) {
         const currentPrice = asset.currentPrice || asset.purchasePrice;
         const pnl = (currentPrice - asset.purchasePrice) * asset.quantity;
         const pnlClass = pnl >= 0 ? 'text-green-600' : 'text-red-600';
-        return `<tr class="border-b"><td class="py-3 px-2 font-medium">${asset.symbol}</td><td class="py-3 px-2 text-gray-500">${formatCurrency(asset.purchasePrice)}</td><td class="py-3 px-2 font-semibold">${formatCurrency(currentPrice)}</td><td class="py-3 px-2 font-bold ${pnlClass}">${formatCurrency(pnl)}</td></tr>`;
+        return `<tr class="border-b"><td class="py-3 px-2 font-medium">${asset.symbol}</td><td class="py-3 px-2 text-gray-500">${formatCurrency(asset.purchasePrice, 'USD')}</td><td class="py-3 px-2 font-semibold">${formatCurrency(currentPrice, 'USD')}</td><td class="py-3 px-2 font-bold ${pnlClass}">${formatCurrency(pnl, 'USD')}</td></tr>`;
     }).join('');
     investmentDetailsContainer.innerHTML = `<table class="min-w-full text-sm"><thead class="text-left text-gray-500"><tr><th class="py-2 px-2 font-semibold">Activo</th><th class="py-2 px-2 font-semibold">Precio Compra</th><th class="py-2 px-2 font-semibold">Precio Actual</th><th class="py-2 px-2 font-semibold">Resultado</th></tr></thead><tbody>${tableRows}</tbody></table>`;
 }
-
 function calculatePortfolioSummary(portfolioItems) {
-    let totalValue = 0, totalPnl = 0;
+    let totalValue = 0;
     if (portfolioItems) {
         portfolioItems.forEach(asset => {
             const currentPrice = asset.currentPrice || asset.purchasePrice;
             totalValue += (asset.quantity || 0) * currentPrice;
-            totalPnl += (currentPrice - asset.purchasePrice) * (asset.quantity || 0);
         });
     }
-    return { totalValue, totalPnl };
+    return { totalValue };
 }
-const formatCurrency = (value, currency = 'ARS') => new Intl.NumberFormat('es-AR', { style: 'currency', currency }).format(value);
+const formatCurrency = (value, currency = 'ARS') => new Intl.NumberFormat(currency === 'ARS' ? 'es-AR' : 'en-US', { style: 'currency', currency }).format(value);
