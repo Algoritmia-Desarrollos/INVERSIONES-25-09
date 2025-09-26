@@ -1,10 +1,8 @@
-// CORRECCIÓN: Se añadieron las rutas correctas a la carpeta /js/
+// app.js
 import { loadComponent, loadPage } from './js/ui.js';
 import { initRecordatoriosPage } from './js/recordatorios.js';
-
-// Cuando crees los otros módulos, los importarás aquí:
-// import { initPatrimonioPage } from './js/patrimonio.js';
-// import { initInversionesPage } from './js/inversiones.js';
+import { initPatrimonioPage } from './js/patrimonio.js';
+import { initInversionesPage } from './js/inversiones.js'; // <-- AÑADE ESTA LÍNEA
 
 const navContainer = document.getElementById('nav-container');
 
@@ -17,19 +15,20 @@ async function handleNavigation(pageName) {
     await loadPage(pageName);
     
     // Ejecuta el inicializador JS correspondiente a la página cargada
-    switch (pageName) {
-        case 'recordatorios':
-            initRecordatoriosPage();
-            break;
-        case 'patrimonio':
-            // initPatrimonioPage(); // Lo activarás cuando crees este módulo
-            console.log('Cargando página de patrimonio...');
-            break;
-        case 'inversiones':
-            // initInversionesPage(); // Lo activarás cuando crees este módulo
-            console.log('Cargando página de inversiones...');
-            break;
-    }
+   switch (pageName) {
+    case 'recordatorios':
+        initRecordatoriosPage();
+        break;
+    case 'patrimonio':
+        initPatrimonioPage(); // <-- DESCOMENTA Y USA LA FUNCIÓN
+        break;
+    case 'inversiones':
+        // ...
+        break;
+    case 'inversiones':
+        initInversionesPage(); // <-- AÑADE ESTE CASO
+    break;
+}
     
     // Actualiza el estilo del botón activo en la barra de navegación
     updateActiveNavButton(pageName);

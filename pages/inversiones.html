@@ -1,0 +1,37 @@
+<section id="page-inversiones" class="page p-4 md:p-8 max-w-4xl mx-auto">
+    <header class="mb-8">
+       <h1 class="text-4xl font-bold text-center text-indigo-600 dark:text-indigo-400">Inversiones 📈</h1>
+   </header>
+   
+   <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+       <div class="md:col-span-1">
+           <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg h-fit sticky top-8">
+               <h2 class="text-2xl font-semibold mb-4">Registrar Activo</h2>
+               <form id="investment-form" class="space-y-4">
+                   <div>
+                       <label for="asset" class="block text-sm font-medium">Activo (Ticker)</label>
+                       <input type="text" id="asset" name="asset" required placeholder="Ej: AAPL, KO, BTC" class="mt-1 block w-full p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-gray-300 dark:border-gray-600 shadow-sm">
+                   </div>
+                   <div>
+                       <label for="quantity" class="block text-sm font-medium">Cantidad</label>
+                       <input type="number" id="quantity" name="quantity" step="any" required placeholder="Ej: 10 o 0.015" class="mt-1 block w-full p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-gray-300 dark:border-gray-600 shadow-sm">
+                   </div>
+                   <div>
+                       <label for="purchase_price" class="block text-sm font-medium">Precio de Compra (Unitario)</label>
+                       <input type="number" id="purchase_price" name="purchase_price" step="any" required placeholder="Ej: 175.50" class="mt-1 block w-full p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-gray-300 dark:border-gray-600 shadow-sm">
+                   </div>
+                   <div>
+                       <label for="purchase_date" class="block text-sm font-medium">Fecha de Compra</label>
+                       <input type="date" id="purchase_date" name="purchase_date" required class="mt-1 block w-full p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-gray-300 dark:border-gray-600 shadow-sm">
+                   </div>
+                   <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-transform duration-200 hover:scale-105 shadow-lg">Agregar Inversión</button>
+               </form>
+           </div>
+       </div>
+
+       <div class="md:col-span-2 space-y-4">
+           <div id="inversiones-container" class="space-y-4">
+               </div>
+       </div>
+   </div>
+</section>
