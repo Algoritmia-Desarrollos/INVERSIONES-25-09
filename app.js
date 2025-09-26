@@ -1,8 +1,10 @@
-import { loadComponent, loadPage } from './ui.js';
-import { initRecordatoriosPage } from './recordatorios.js';
+// CORRECCIÓN: Se añadieron las rutas correctas a la carpeta /js/
+import { loadComponent, loadPage } from './js/ui.js';
+import { initRecordatoriosPage } from './js/recordatorios.js';
+
 // Cuando crees los otros módulos, los importarás aquí:
-// import { initPatrimonioPage } from './patrimonio.js';
-// import { initInversionesPage } from './inversiones.js';
+// import { initPatrimonioPage } from './js/patrimonio.js';
+// import { initInversionesPage } from './js/inversiones.js';
 
 const navContainer = document.getElementById('nav-container');
 
@@ -53,7 +55,7 @@ function updateActiveNavButton(activePage) {
  * Función principal que se ejecuta al cargar la aplicación.
  */
 async function main() {
-    // 1. Carga el componente de navegación
+    // 1. Carga el componente de navegación. CORRECCIÓN: La ruta correcta es a /components/
     await loadComponent('#nav-container', './components/nav.html');
     
     // 2. Agrega el listener para los clics en la navegación
