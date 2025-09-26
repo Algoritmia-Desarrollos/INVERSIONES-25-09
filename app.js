@@ -1,3 +1,4 @@
+// CORRECCIÓN: Se AÑADIERON las rutas a la carpeta /js/ porque este archivo está en la raíz.
 import { clienteSupabase } from './js/supabase-client.js';
 import { loadComponent, loadPage } from './js/ui.js';
 import { initRecordatoriosPage } from './js/recordatorios.js';
@@ -12,48 +13,39 @@ const closeModalBtn = document.getElementById('close-modal-btn');
 const transactionForm = document.getElementById('transaction-form');
 
 // --- MANEJO DEL MODAL (GLOBAL) ---
-
-/**
- * Abre el modal de transacciones y lo prepara para ser usado.
- * Esta función se exporta para que otras páginas (como gastos.js) puedan llamarla.
- */
 export async function openTransactionModal() {
-    // Antes de abrir, cargamos las billeteras y categorías en los 'selects' del formulario
     await populateTransactionModal();
     transactionModal.classList.remove('hidden');
 }
 
-/**
- * Cierra el modal de transacciones.
- */
 function closeTransactionModal() {
     transactionModal.classList.add('hidden');
 }
 
-/**
- * Carga dinámicamente las billeteras y categorías en el formulario del modal.
- */
 async function populateTransactionModal() {
-    // Cargar billeteras
     const walletSelect = transactionForm.querySelector('#wallet-select');
-    const { data: wallets, error: walletsError } = await clienteSupabase.from('cartera_wallets').select('id, name');
-    if (wallets) {
-        walletSelect.innerHTML = wallets.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
+    const categorySelect = transactionForm.querySelector('#category-select');
+
+    try {
+        const { data: wallets } = await clienteSupabase.from('cartera_wallets').select('id, name');
+        if (wallets) {
+            walletSelect.innerHTML = wallets.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
+        }
+    } catch (error) {
+        console.error("Error cargando billeteras:", error);
     }
 
-    // Cargar categorías
-    const categorySelect = transactionForm.querySelector('#category-select');
-    const { data: categories, error: categoriesError } = await clienteSupabase.from('cartera_categories').select('id, name, type');
-    if (categories) {
-        // Separamos por tipo para lógica futura si es necesario
-        const expenseCategories = categories.filter(c => c.type === 'gasto');
-        categorySelect.innerHTML = expenseCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    try {
+        const { data: categories } = await clienteSupabase.from('cartera_categories').select('id, name, type');
+        if (categories) {
+            const expenseCategories = categories.filter(c => c.type === 'gasto');
+            categorySelect.innerHTML = expenseCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+    } catch (error) {
+        console.error("Error cargando categorías:", error);
     }
 }
 
-/**
- * Guarda la nueva transacción enviada desde el modal.
- */
 async function handleTransactionSubmit(event) {
     event.preventDefault();
     const formData = new FormData(transactionForm);
@@ -71,26 +63,21 @@ async function handleTransactionSubmit(event) {
         amount: amount,
     };
 
-    const { error } = await clienteSupabase.from('cartera_transactions').insert(newTransaction);
+    const { error } = await clienteSupabase.from('cartera_transactions').insert([newTransaction]);
     
     if (error) {
         console.error("Error guardando la transacción:", error);
         alert("No se pudo guardar el movimiento.");
     } else {
         closeTransactionModal();
-        // Recargamos la página actual para que refleje el nuevo movimiento
-        const currentPage = document.querySelector('.nav-btn.text-indigo-600').dataset.target;
-        handleNavigation(currentPage);
+        const currentPageButton = document.querySelector('.nav-btn.text-indigo-600');
+        if (currentPageButton) {
+            handleNavigation(currentPageButton.dataset.target);
+        }
     }
 }
 
-
 // --- LÓGICA DE NAVEGACIÓN ---
-
-/**
- * Carga una página y ejecuta su lógica de inicialización.
- * @param {string} pageName - El nombre del archivo de la página (ej: 'patrimonio').
- */
 async function handleNavigation(pageName) {
     await loadPage(pageName);
     
@@ -111,11 +98,8 @@ async function handleNavigation(pageName) {
     updateActiveNavButton(pageName);
 }
 
-/**
- * Actualiza el estilo del botón activo en la barra de navegación.
- */
 function updateActiveNavButton(activePage) {
-    const navButtons = navContainer.querySelectorAll('.nav-btn');
+    const navButtons = navContainer.querySelectorAll('.nav--btn');
     navButtons.forEach(btn => {
         const target = btn.dataset.target;
         if (target === activePage) {
@@ -128,17 +112,10 @@ function updateActiveNavButton(activePage) {
     });
 }
 
-
 // --- FUNCIÓN PRINCIPAL DE LA APP ---
-
-/**
- * Punto de entrada de la aplicación.
- */
 async function main() {
-    // Carga la barra de navegación
     await loadComponent('#nav-container', './components/nav.html');
     
-    // Asigna los listeners de eventos
     navContainer.addEventListener('click', (event) => {
         const navButton = event.target.closest('.nav-btn');
         if (navButton) {
@@ -149,9 +126,7 @@ async function main() {
     closeModalBtn.addEventListener('click', closeTransactionModal);
     transactionForm.addEventListener('submit', handleTransactionSubmit);
 
-    // Carga la página por defecto al iniciar la aplicación
     handleNavigation('patrimonio');
 }
 
-// Inicia la aplicación
 main();

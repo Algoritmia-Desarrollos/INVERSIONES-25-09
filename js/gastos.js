@@ -1,5 +1,5 @@
 import { clienteSupabase } from './supabase-client.js';
-import { openTransactionModal } from './app.js'; // Importamos la función para abrir el modal
+import { openTransactionModal } from '../app.js'; // Importamos la función para abrir el modal
 
 let budgetsContainer;
 let gastosRecientesContainer;
