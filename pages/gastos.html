@@ -1,0 +1,36 @@
+<section id="page-gastos" class="page p-4 md:p-8 max-w-4xl mx-auto">
+    <header class="mb-8">
+       <h1 class="text-4xl font-bold text-center text-indigo-600 dark:text-indigo-400">Control de Gastos 💸</h1>
+   </header>
+   
+    <div class="mb-10">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-semibold">Presupuestos del Mes</h2>
+            <button id="add-budget-btn" class="text-indigo-600 hover:text-indigo-800 font-semibold">+ Nuevo Presupuesto</button>
+        </div>
+        <div id="budgets-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="text-center p-6 rounded-xl bg-white dark:bg-gray-800 shadow-md">
+                <p class="text-gray-500 dark:text-gray-400">Cargando presupuestos...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-10">
+        <h2 class="text-2xl font-semibold mb-4">Análisis de Gastos</h2>
+        <div id="charts-container" class="p-6 rounded-xl bg-white dark:bg-gray-800 shadow-lg">
+            <p class="text-center text-gray-500">Los gráficos y reportes visuales aparecerán aquí.</p>
+        </div>
+    </div>
+
+    <div>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-semibold">Movimientos Recientes</h2>
+             <button id="add-transaction-btn" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 transition-colors">+ Nuevo Movimiento</button>
+        </div>
+        <div id="gastos-recientes-container" class="space-y-3">
+            <div class="text-center p-6 rounded-xl bg-white dark:bg-gray-800 shadow-md">
+                <p class="text-gray-500 dark:text-gray-400">Cargando movimientos...</p>
+            </div>
+        </div>
+    </div>
+</section>

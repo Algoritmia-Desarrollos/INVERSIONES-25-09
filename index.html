@@ -2,17 +2,25 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale-1.0">
     <title>Mi Cartera Digital</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans">
 
-    <main id="content-container" class="pb-24">
-        </main>
+    <main id="content-container" class="pb-24"></main>
 
     <nav id="nav-container"></nav>
+
+    <div id="transaction-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-30 hidden">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md relative">
+            <button id="close-modal-btn" class="absolute top-2 right-4 text-2xl">&times;</button>
+            <h2 class="text-2xl font-semibold mb-4">Registrar Movimiento</h2>
+            <form id="transaction-form" class="space-y-4">
+                </form>
+        </div>
+    </div>
     
     <script type="module" src="app.js"></script>
 </body>
