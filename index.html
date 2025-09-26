@@ -1,41 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mi Cartera - Iniciar Sesión</title>
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-  <link rel="stylesheet" href="/src/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Cartera Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./css/styles.css">
 </head>
-<body class="flex items-center justify-center min-h-screen bg-gray-50 p-4">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans">
 
-  <div class="bg-white w-full max-w-md p-8 rounded-xl shadow-lg">
-    <div class="text-center mb-8">
-      <div class="bg-indigo-100 text-indigo-600 rounded-full h-16 w-16 mx-auto flex items-center justify-center mb-4">
-        <span class="material-icons" style="font-size: 36px;">account_balance_wallet</span>
-      </div>
-      <h1 class="text-3xl font-bold text-gray-800">Mi Cartera</h1>
-      <p class="text-gray-500 mt-2">Ingresa para gestionar tus finanzas</p>
-    </div>
+    <main id="content-container" class="pb-24">
+        </main>
+
+    <nav id="nav-container"></nav>
     
-    <div id="error-message" class="bg-red-100 text-red-700 p-3 rounded-lg mb-4 hidden"></div>
-    
-    <form id="login-form" class="space-y-6">
-      <div>
-        <label for="email" class="input-label">Correo Electrónico</label>
-        <input type="email" id="email" class="input-field" required autocomplete="email">
-      </div>
-      <div>
-        <label for="password" class="input-label">Contraseña</label>
-        <input type="password" id="password" class="input-field" required autocomplete="current-password">
-      </div>
-      <button type="submit" id="login-btn" class="btn-primary w-full p-3 flex items-center justify-center">
-        <span>Iniciar Sesión</span>
-      </button>
-    </form>
-  </div>
-  
-  <script type="module" src="login.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>

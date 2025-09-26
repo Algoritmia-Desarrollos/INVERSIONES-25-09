@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Clase personalizada para el botón de categoría activo */
+.category-btn.active {
+    @apply bg-indigo-600 text-white shadow-md;
+}

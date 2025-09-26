@@ -1,0 +1,36 @@
+<section id="page-recordatorios" class="page p-4 md:p-8 max-w-4xl mx-auto">
+    <header class="mb-8">
+       <h1 class="text-4xl font-bold text-center text-indigo-600 dark:text-indigo-400">Recordatorios 🔔</h1>
+   </header>
+   
+   <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="md:col-span-1">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg h-fit sticky top-8">
+                <h2 class="text-2xl font-semibold mb-4">Nuevo Recordatorio</h2>
+                <form id="reminder-form" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Categoría</label>
+                        <div id="category-selector" class="flex space-x-2">
+                            <button type="button" data-category="General" class="category-btn active flex-1 py-2 px-3 rounded-lg bg-gray-200 dark:bg-gray-700 transition-all duration-200">General</button>
+                            <button type="button" data-category="Trabajo" class="category-btn flex-1 py-2 px-3 rounded-lg bg-gray-200 dark:bg-gray-700 transition-all duration-200">Trabajo</button>
+                        </div>
+                        <input type="hidden" id="reminder-category" name="category" value="General">
+                    </div>
+                    <div>
+                        <label for="reminder-title" class="block text-sm font-medium">Descripción</label>
+                        <input type="text" id="reminder-title" required placeholder="Ej: Pagar la tarjeta de crédito" class="mt-1 block w-full p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-gray-300 dark:border-gray-600 shadow-sm">
+                    </div>
+                    <div>
+                        <label for="reminder-date" class="block text-sm font-medium">Fecha Límite</label>
+                        <input type="date" id="reminder-date" required class="mt-1 block w-full p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-gray-300 dark:border-gray-600 shadow-sm">
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-transform duration-200 hover:scale-105 shadow-lg">Guardar Recordatorio</button>
+                </form>
+            </div>
+        </div>
+       <div class="md:col-span-2 space-y-4">
+           <div id="recordatorios-container" class="space-y-4">
+               </div>
+       </div>
+   </div>
+</section>
