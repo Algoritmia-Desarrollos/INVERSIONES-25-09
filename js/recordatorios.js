@@ -8,7 +8,6 @@ let categoryInput;
 
 /**
  * Inicializa la página de recordatorios, asignando los elementos del DOM y los eventos.
- * Esta función se llama desde app.js cuando se carga la página.
  */
 export function initRecordatoriosPage() {
     form = document.getElementById('reminder-form');
@@ -16,7 +15,7 @@ export function initRecordatoriosPage() {
     categorySelector = document.getElementById('category-selector');
     categoryInput = document.getElementById('reminder-category');
 
-    // Se asegura de no agregar listeners duplicados si la página se recarga
+    // Se asegura de no agregar listeners duplicados
     form.removeEventListener('submit', agregarRecordatorio);
     form.addEventListener('submit', agregarRecordatorio);
     
@@ -28,7 +27,6 @@ export function initRecordatoriosPage() {
 
 /**
  * Maneja la selección de categoría en el formulario.
- * Cambia el estilo del botón activo y actualiza el valor del input oculto.
  */
 function handleCategorySelect(event) {
     // Solo reacciona a clics en los botones
@@ -70,7 +68,7 @@ async function agregarRecordatorio(event) {
 }
 
 /**
- * Carga todos los recordatorios desde Supabase y los muestra en pantalla.
+ * CAMBIO: Carga y agrupa los recordatorios por estado (Hoy, Próximos, Vencidos)
  */
 async function cargarRecordatorios() {
     container.innerHTML = '<p class="text-center text-gray-500">Cargando recordatorios...</p>';
@@ -78,7 +76,7 @@ async function cargarRecordatorios() {
     const { data, error } = await clienteSupabase
         .from('cartera_notes')
         .select('*')
-        .order('due_date', { ascending: true });
+        .order('due_date', { ascending: true }); // Traemos todos ordenados por fecha
     
     if (error) {
         container.innerHTML = '<p class="text-center text-red-500">Error al cargar los datos.</p>';
@@ -90,13 +88,67 @@ async function cargarRecordatorios() {
         return;
     }
 
-    container.innerHTML = '';
+    container.innerHTML = ''; // Limpiamos el contenedor
+    
+    // Listas para agrupar
+    const grupos = {
+        hoy: [],
+        proximos: [],
+        vencidos: []
+    };
+
+    const hoy = new Date();
+    hoy.setUTCHours(0, 0, 0, 0);
+
     data.forEach(nota => {
+        // Aseguramos que la nota tenga fecha para evitar errores
+        if (!nota.due_date) return; 
+
+        const fechaLimite = new Date(nota.due_date);
+        fechaLimite.setUTCHours(0, 0, 0, 0); // Normalizamos la fecha
+
+        const diffTiempo = fechaLimite.getTime() - hoy.getTime();
+        const diffDias = Math.ceil(diffTiempo / (1000 * 60 * 60 * 24));
+
+        if (diffDias < 0) {
+            grupos.vencidos.push(nota);
+        } else if (diffDias === 0) {
+            grupos.hoy.push(nota);
+        } else {
+            grupos.proximos.push(nota);
+        }
+    });
+
+    // Renderizar grupos en el orden deseado
+    renderizarGrupo(grupos.hoy, 'Para Hoy', 'bg-yellow-100 dark:bg-yellow-800/50', 'text-yellow-800 dark:text-yellow-200');
+    renderizarGrupo(grupos.proximos, 'Próximos', 'bg-white dark:bg-gray-800');
+    // Mostramos los vencidos al final y en orden descendente (el más reciente primero)
+    renderizarGrupo(grupos.vencidos.reverse(), 'Vencidos', 'bg-red-100 dark:bg-red-900/50 opacity-70', 'text-red-800 dark:text-red-200');
+}
+
+/**
+ * CAMBIO: Función helper para renderizar un grupo de tarjetas de recordatorio
+ */
+function renderizarGrupo(notas, titulo, bgClass, textClass = '') {
+    if (notas.length === 0) return; // No renderizar sección si no hay notas
+
+    const sectionWrapper = document.createElement('div');
+    sectionWrapper.className = 'mb-8';
+    
+    const header = document.createElement('h2');
+    header.className = 'text-xl font-semibold mb-3 text-gray-700 dark:text-gray-300';
+    header.textContent = titulo;
+    sectionWrapper.appendChild(header);
+
+    const groupContainer = document.createElement('div');
+    groupContainer.className = 'space-y-4';
+
+    notas.forEach(nota => {
         const card = document.createElement('div');
-        const { texto, colorFondo, colorTexto, colorBadge } = calcularTiempoRestante(nota.due_date);
+        // Usamos la función modificada 'calcularEstilos'
+        const { texto, colorBadge } = calcularEstilos(nota.due_date);
         
-        const cardClasses = `p-5 rounded-xl shadow-md ${colorFondo} ${colorTexto} transition-transform duration-300 hover:scale-105 hover:shadow-xl`;
-        card.className = cardClasses;
+        card.className = `p-5 rounded-xl shadow-md ${bgClass} ${textClass} transition-transform duration-300 hover:scale-102 hover:shadow-xl`;
         
         card.innerHTML = `
             <div class="flex justify-between items-start gap-4">
@@ -110,15 +162,19 @@ async function cargarRecordatorios() {
                 <p class="font-semibold">${texto}</p>
             </div>
         `;
-        container.appendChild(card);
+        groupContainer.appendChild(card);
     });
+
+    sectionWrapper.appendChild(groupContainer);
+    container.appendChild(sectionWrapper);
 }
 
 /**
- * Calcula el tiempo restante para una fecha y devuelve texto y colores para la UI.
+ * CAMBIO: Renombrada y simplificada.
+ * Calcula solo el texto y el color del badge (los colores de fondo se manejan en el grupo)
  */
-function calcularTiempoRestante(fecha) {
-    if (!fecha) return { texto: 'Sin fecha', colorFondo: 'bg-white dark:bg-gray-800', colorBadge: 'bg-gray-200 text-gray-800' };
+function calcularEstilos(fecha) {
+    if (!fecha) return { texto: 'Sin fecha', colorBadge: 'bg-gray-200 text-gray-800' };
     
     const hoy = new Date();
     const fechaLimite = new Date(fecha);
@@ -129,8 +185,8 @@ function calcularTiempoRestante(fecha) {
     const diffTiempo = fechaLimite.getTime() - hoy.getTime();
     const diffDias = Math.ceil(diffTiempo / (1000 * 60 * 60 * 24));
 
-    if (diffDias < 0) return { texto: `Vencido hace ${Math.abs(diffDias)} días`, colorFondo: 'bg-red-100 dark:bg-red-900/50', colorTexto: 'text-red-800 dark:text-red-200', colorBadge: 'bg-red-200 text-red-800' };
-    if (diffDias === 0) return { texto: '¡Vence Hoy!', colorFondo: 'bg-yellow-100 dark:bg-yellow-800/50', colorTexto: 'text-yellow-800 dark:text-yellow-200', colorBadge: 'bg-yellow-200 text-yellow-800' };
-    if (diffDias === 1) return { texto: 'Vence Mañana', colorFondo: 'bg-blue-100 dark:bg-blue-900/50', colorTexto: 'text-blue-800 dark:text-blue-200', colorBadge: 'bg-blue-200 text-blue-800' };
-    return { texto: `Faltan ${diffDias} días`, colorFondo: 'bg-white dark:bg-gray-800', colorTexto: '', colorBadge: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200' };
+    if (diffDias < 0) return { texto: `Vencido hace ${Math.abs(diffDias)} días`, colorBadge: 'bg-red-200 text-red-800' };
+    if (diffDias === 0) return { texto: '¡Vence Hoy!', colorBadge: 'bg-yellow-200 text-yellow-800' };
+    if (diffDias === 1) return { texto: 'Vence Mañana', colorBadge: 'bg-blue-200 text-blue-800' };
+    return { texto: `Faltan ${diffDias} días`, colorBadge: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200' };
 }
